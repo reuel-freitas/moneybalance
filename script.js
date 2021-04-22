@@ -20,17 +20,17 @@ const removeTransaction = ID => {
     init()
 }
 
-const addTransactionIntoDOM = transaction => {
+const addTransactionIntoDOM = ({ amount, name, id }) => {
     
-    const operator = transaction.amount < 0 ? '-' : '+'
-    const CSSClass = transaction.amount < 0 ? 'minus' : 'plus'
-    const amountWithoutOperator = Math.abs(transaction.amount)
+    const operator = amount < 0 ? '-' : '+'
+    const CSSClass = amount < 0 ? 'minus' : 'plus'
+    const amountWithoutOperator = Math.abs(amount)
     const li = document.createElement('li')
 
     li.classList.add(CSSClass)
-    li.innerHTML = `${transaction.name}
+    li.innerHTML = `${name}
     <span>${operator} R$ ${amountWithoutOperator}</span>
-    <button class="delete-btn" onClick="removeTransaction(${transaction.id})">x</button>`
+    <button class="delete-btn" onClick="removeTransaction(${id})">x</button>`
 
     //transactionsUl.append(li)//append insert in the end
     transactionsUl.prepend(li)
