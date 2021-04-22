@@ -20,8 +20,6 @@ const removeTransaction = ID => {
     init()
 }
 
-
-
 const addTransactionIntoDOM = transaction => {
     
     const operator = transaction.amount < 0 ? '-' : '+'
@@ -30,7 +28,7 @@ const addTransactionIntoDOM = transaction => {
     const li = document.createElement('li')
 
     li.classList.add(CSSClass)
-    li.innerHTML = `${transaction.name} 
+    li.innerHTML = `${transaction.name}
     <span>${operator} R$ ${amountWithoutOperator}</span>
     <button class="delete-btn" onClick="removeTransaction(${transaction.id})">x</button>`
 
@@ -44,21 +42,24 @@ const init = () => {
     updateBalance()
 }
 
-const updateBalance = () => {
-    const transactionsAmounts = transactions
-        .map(transaction => transaction.amount)
-    const total = transactionsAmounts
-        .reduce((accumulator, transaction) => accumulator + transaction, 0)
-        .toFixed(2)
-    
-    const income = transactionsAmounts
-        .filter(value => value > 0)
-        .reduce((accumulator, value) => accumulator + value, 0)
-        .toFixed(2)
-    const expense = Math.abs(transactionsAmounts
+const getExpenses = transactionsAmounts => Math.abs(transactionsAmounts
         .filter(value => value < 0)
         .reduce((accumulator, value) => accumulator + value, 0))
         .toFixed(2)
+
+const getIncomes = transactionsAmounts => transactionsAmounts.filter(value => value > 0)
+        .reduce((accumulator, value) => accumulator + value, 0)
+        .toFixed(2)
+
+const getTotal = transactionsAmounts => transactionsAmounts
+        .reduce((accumulator, transaction) => accumulator + transaction, 0)
+        .toFixed(2)
+
+const updateBalance = () => {
+    const transactionsAmounts = transactions.map(({ amount }) => amount)
+    const total = getTotal(transactionsAmounts)    
+    const income = getIncomes(transactionsAmounts)
+    const expense = getExpenses(transactionsAmounts)
     
     balanceDisplay.textContent = `R$ ${total}`
     incomeDisplay.textContent = `R$ ${income}`
@@ -74,29 +75,35 @@ const updateLocalStorage = () => {
 
 const generateID = () => Math.round(Math.random() * 1000)
 
+const addTransactionsArray = (transactionName, transactionAmount) => {
+    transactions.push({ 
+        id: generateID(), 
+        name: transactionName,
+        amount: Number(transactionAmount)
+    })
+}
+
+const cleanInputs = () => {
+    inputTransactionName.value = ''
+    inputTransactionAmount.value = ''
+}
+
 const handleFormSubmit = event => {
     event.preventDefault()
     
     const transactionName = inputTransactionName.value.trim()
     const transactionAmount = inputTransactionAmount.value.trim()
+    const isSomeInputEmpty = transactionName === '' && transactionAmount.value.trim() === ''
 
-    if (transactionName === '' && transactionAmount.value.trim() === '') {
+    if (isSomeInputEmpty) {
         alert('Please enter the name and value of the transaction!')
         return
     }
 
-    const transaction = { 
-        id: generateID(), 
-        name: transactionName,
-        amount: Number(transactionAmount)
-    }
-
-    transactions.push(transaction)
+    addTransactionsArray(transactionName, transactionAmount)
     init()
     updateLocalStorage()
-
-    inputTransactionName.value = ''
-    inputTransactionAmount.value = ''
+    cleanInputs()
 }
 
 form.addEventListener('submit', handleFormSubmit)
